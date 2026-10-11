@@ -1,0 +1,28 @@
+# Variables y credenciales
+.env
+.env.*
+!.env.example
+
+# Java y Gradle
+.gradle/
+build/
+target/
+*.class
+
+# Frontend
+node_modules/
+dist/
+
+# Editores
+.idea/
+.vscode/
+*.iml
+
+# Archivos temporales
+*.log
+*.tmp
+.DS_Store
+
+# Datos generados
+data/procesados/
+data/errores/
