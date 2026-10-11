@@ -17,6 +17,10 @@ public class ErroresApi extends ResponseEntityExceptionHandler {
     public ProblemDetail tipoInvalido(MethodArgumentTypeMismatchException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Parametro con tipo invalido.");
     }
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public ProblemDetail controlado(org.springframework.web.server.ResponseStatusException ex) {
+        return ProblemDetail.forStatusAndDetail(ex.getStatusCode(), ex.getReason());
+    }
     @ExceptionHandler(Exception.class)
     public ProblemDetail inesperado(Exception ex) {
         log.error("Error inesperado de la API: {}", ex.getClass().getSimpleName());

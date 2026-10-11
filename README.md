@@ -15,6 +15,3 @@ a la Facultad de Ingenieria de la USAC.
 
 Archivos CSV correspondientes a los anios 2015 a 2024.
 
-## Estado
-
-Preparacion inicial del proyecto.

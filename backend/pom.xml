@@ -4,6 +4,7 @@
 <groupId>gt.usac.bd2</groupId><artifactId>admisiones-api</artifactId><version>0.1.0</version>
 <properties><java.version>21</java.version></properties>
 <dependencies>
+<dependency><groupId>org.apache.commons</groupId><artifactId>commons-csv</artifactId><version>1.14.1</version></dependency>
 <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-web</artifactId></dependency>
 <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-data-mongodb</artifactId></dependency>
 <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-data-neo4j</artifactId></dependency>
