@@ -1,0 +1,1119 @@
+{
+  "consultas": [
+    {
+      "id": 1,
+      "titulo": "Aspirantes por tipo de institucion",
+      "descripcion": "IDs distintos por tipo; un ID puede pertenecer a varios tipos.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$group": {
+            "_id": {
+              "tipo_institucion_educativa": "$tipo_institucion_educativa",
+              "aspirante": "$correlativo_aspirante"
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "tipo_institucion_educativa": "$_id.tipo_institucion_educativa"
+            },
+            "aspirantes": {
+              "$sum": 1
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "tipo_institucion_educativa": "$_id.tipo_institucion_educativa",
+            "aspirantes": 1
+          }
+        },
+        {
+          "$sort": {
+            "aspirantes": -1,
+            "tipo_institucion_educativa": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "titulo": "Evaluaciones aprobadas por materia",
+      "descripcion": "Cuenta evaluaciones con resultado APROBADO.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$match": {
+            "aprobacion": "APROBADO"
+          }
+        },
+        {
+          "$group": {
+            "_id": "$materia",
+            "aprobadas": {
+              "$sum": 1
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "materia": "$_id",
+            "aprobadas": 1
+          }
+        },
+        {
+          "$sort": {
+            "aprobadas": -1,
+            "materia": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "titulo": "Aspirantes aprobados por carrera y anio",
+      "descripcion": "IDs distintos con al menos una evaluacion aprobada; no significa admision completa.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$match": {
+            "aprobacion": "APROBADO"
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "carrera_objetivo": "$carrera_objetivo",
+              "anio_de_ingreso": "$anio_de_ingreso",
+              "aspirante": "$correlativo_aspirante"
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "carrera_objetivo": "$_id.carrera_objetivo",
+              "anio_de_ingreso": "$_id.anio_de_ingreso"
+            },
+            "aspirantes_aprobados": {
+              "$sum": 1
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "carrera_objetivo": "$_id.carrera_objetivo",
+            "anio_de_ingreso": "$_id.anio_de_ingreso",
+            "aspirantes_aprobados": 1
+          }
+        },
+        {
+          "$sort": {
+            "aspirantes_aprobados": -1,
+            "carrera_objetivo": 1,
+            "anio_de_ingreso": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "titulo": "Porcentaje de aprobacion por materia",
+      "descripcion": "Evaluaciones aprobadas / evaluaciones totales por materia.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$group": {
+            "_id": {
+              "materia": "$materia"
+            },
+            "evaluaciones": {
+              "$sum": 1
+            },
+            "aprobadas": {
+              "$sum": {
+                "$cond": [
+                  {
+                    "$eq": [
+                      "$aprobacion",
+                      "APROBADO"
+                    ]
+                  },
+                  1,
+                  0
+                ]
+              }
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "materia": "$_id.materia",
+            "evaluaciones": 1,
+            "aprobadas": 1,
+            "no_aprobadas": {
+              "$subtract": [
+                "$evaluaciones",
+                "$aprobadas"
+              ]
+            },
+            "porcentaje_aprobacion": {
+              "$round": [
+                {
+                  "$multiply": [
+                    {
+                      "$divide": [
+                        "$aprobadas",
+                        "$evaluaciones"
+                      ]
+                    },
+                    100
+                  ]
+                },
+                2
+              ]
+            }
+          }
+        },
+        {
+          "$sort": {
+            "materia": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "titulo": "Promedio de edad por carrera",
+      "descripcion": "Una observacion por aspirante, anio y carrera; edades validas de 13 a 100.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$match": {
+            "edad_valida_analisis": true
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "carrera_objetivo": "$carrera_objetivo",
+              "aspirante": "$correlativo_aspirante",
+              "anio": "$anio_de_ingreso"
+            },
+            "edad": {
+              "$avg": "$edad_aproximada"
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "carrera_objetivo": "$_id.carrera_objetivo"
+            },
+            "aspirantes_anio_con_edad": {
+              "$sum": 1
+            },
+            "edad_promedio": {
+              "$avg": "$edad"
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "carrera_objetivo": "$_id.carrera_objetivo",
+            "aspirantes_anio_con_edad": 1,
+            "edad_promedio": {
+              "$round": [
+                "$edad_promedio",
+                2
+              ]
+            }
+          }
+        },
+        {
+          "$sort": {
+            "carrera_objetivo": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "titulo": "Coleccion auxiliar resumen_carrera",
+      "descripcion": "Resumen GLOBAL materializado. Use Generar resumen; luego filtre por carrera. No admite filtros de anio, materia, tipo o departamento.",
+      "coleccion": "resumen_carrera",
+      "pipeline": [
+        {
+          "$project": {
+            "_id": 0,
+            "carrera_objetivo": 1,
+            "aspirantes": 1,
+            "evaluaciones": 1,
+            "aprobadas": 1,
+            "no_aprobadas": 1,
+            "aspirantes_con_aprobacion": 1,
+            "porcentaje_aprobacion": 1,
+            "fecha_generacion": 1
+          }
+        },
+        {
+          "$sort": {
+            "aspirantes": -1,
+            "carrera_objetivo": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "titulo": "Edad de aprobados por carrera y tipo",
+      "descripcion": "IDs con alguna evaluacion aprobada; una observacion por aspirante, anio, carrera y tipo con edad valida.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$match": {
+            "aprobacion": "APROBADO"
+          }
+        },
+        {
+          "$match": {
+            "edad_valida_analisis": true
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "carrera_objetivo": "$carrera_objetivo",
+              "tipo_institucion_educativa": "$tipo_institucion_educativa",
+              "aspirante": "$correlativo_aspirante",
+              "anio": "$anio_de_ingreso"
+            },
+            "edad": {
+              "$avg": "$edad_aproximada"
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "carrera_objetivo": "$_id.carrera_objetivo",
+              "tipo_institucion_educativa": "$_id.tipo_institucion_educativa"
+            },
+            "aspirantes_anio_con_edad": {
+              "$sum": 1
+            },
+            "edad_promedio": {
+              "$avg": "$edad"
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "carrera_objetivo": "$_id.carrera_objetivo",
+            "tipo_institucion_educativa": "$_id.tipo_institucion_educativa",
+            "aspirantes_anio_con_edad": 1,
+            "edad_promedio": {
+              "$round": [
+                "$edad_promedio",
+                2
+              ]
+            }
+          }
+        },
+        {
+          "$sort": {
+            "carrera_objetivo": 1,
+            "tipo_institucion_educativa": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "titulo": "Aprobados por municipio y carrera",
+      "descripcion": "Aspirantes distintos con alguna aprobacion; municipio de la institucion, identificado junto al departamento.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$match": {
+            "aprobacion": "APROBADO"
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "departamento_institucion_educativa": "$departamento_institucion_educativa",
+              "municipio_institucion_educativa": "$municipio_institucion_educativa",
+              "carrera_objetivo": "$carrera_objetivo",
+              "aspirante": "$correlativo_aspirante"
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "departamento_institucion_educativa": "$_id.departamento_institucion_educativa",
+              "municipio_institucion_educativa": "$_id.municipio_institucion_educativa",
+              "carrera_objetivo": "$_id.carrera_objetivo"
+            },
+            "aspirantes_aprobados": {
+              "$sum": 1
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "departamento_institucion_educativa": "$_id.departamento_institucion_educativa",
+            "municipio_institucion_educativa": "$_id.municipio_institucion_educativa",
+            "carrera_objetivo": "$_id.carrera_objetivo",
+            "aspirantes_aprobados": 1
+          }
+        },
+        {
+          "$sort": {
+            "aspirantes_aprobados": -1,
+            "departamento_institucion_educativa": 1,
+            "municipio_institucion_educativa": 1,
+            "carrera_objetivo": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "titulo": "Evaluaciones por mes y materia: sector publico",
+      "descripcion": "Mes de fecha_asignacion en UTC, separado por anio calendario; no es fecha efectiva del examen.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$match": {
+            "tipo_institucion_educativa": "PUBLICO"
+          }
+        },
+        {
+          "$set": {
+            "mes": {
+              "$dateToString": {
+                "format": "%Y-%m",
+                "date": "$fecha_asignacion",
+                "timezone": "+00:00"
+              }
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "mes": "$mes",
+              "materia": "$materia"
+            },
+            "evaluaciones": {
+              "$sum": 1
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "mes": "$_id.mes",
+            "materia": "$_id.materia",
+            "evaluaciones": 1
+          }
+        },
+        {
+          "$sort": {
+            "mes": 1,
+            "materia": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "titulo": "Top 5 carreras: aspirantes de 16 a 18 anios",
+      "descripcion": "IDs distintos por carrera con edad 16..18; excluye NINGUNO y SIN REGISTRO.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$match": {
+            "edad_valida_analisis": true,
+            "edad_aproximada": {
+              "$gte": 16,
+              "$lte": 18
+            },
+            "carrera_objetivo": {
+              "$nin": [
+                "NINGUNO",
+                "SIN REGISTRO"
+              ]
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "carrera_objetivo": "$carrera_objetivo",
+              "aspirante": "$correlativo_aspirante"
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "carrera_objetivo": "$_id.carrera_objetivo"
+            },
+            "aspirantes": {
+              "$sum": 1
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "carrera_objetivo": "$_id.carrera_objetivo",
+            "aspirantes": 1
+          }
+        },
+        {
+          "$sort": {
+            "aspirantes": -1,
+            "carrera_objetivo": 1
+          }
+        },
+        {
+          "$limit": 5
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "titulo": "Historial de desempeno del aspirante",
+      "descripcion": "Ingrese un correlativo exacto. Muestra oportunidades registradas y resultados, sin inferir intentos ausentes.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$sort": {
+            "anio_de_ingreso": 1,
+            "fecha_asignacion": 1,
+            "numero_de_fecha_de_evaluacion": 1,
+            "materia": 1,
+            "evaluacion_id": 1
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "evaluacion_id": 1,
+            "correlativo_aspirante": 1,
+            "anio_de_ingreso": 1,
+            "fecha_asignacion": 1,
+            "materia": 1,
+            "numero_de_fecha_de_evaluacion": 1,
+            "aprobacion": 1,
+            "carrera_objetivo": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "titulo": "Aspirantes por sexo y tipo de institucion",
+      "descripcion": "IDs distintos por combinacion; incluye SIN REGISTRO.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$group": {
+            "_id": {
+              "sexo": "$sexo",
+              "tipo_institucion_educativa": "$tipo_institucion_educativa",
+              "aspirante": "$correlativo_aspirante"
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "sexo": "$_id.sexo",
+              "tipo_institucion_educativa": "$_id.tipo_institucion_educativa"
+            },
+            "aspirantes": {
+              "$sum": 1
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "sexo": "$_id.sexo",
+            "tipo_institucion_educativa": "$_id.tipo_institucion_educativa",
+            "aspirantes": 1
+          }
+        },
+        {
+          "$sort": {
+            "aspirantes": -1,
+            "sexo": 1,
+            "tipo_institucion_educativa": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "titulo": "Tasa de aprobacion por edad",
+      "descripcion": "Tasa sobre evaluaciones con edad aproximada valida; no cuenta personas como evaluaciones.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$match": {
+            "edad_valida_analisis": true
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "edad_aproximada": "$edad_aproximada"
+            },
+            "evaluaciones": {
+              "$sum": 1
+            },
+            "aprobadas": {
+              "$sum": {
+                "$cond": [
+                  {
+                    "$eq": [
+                      "$aprobacion",
+                      "APROBADO"
+                    ]
+                  },
+                  1,
+                  0
+                ]
+              }
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "edad_aproximada": "$_id.edad_aproximada",
+            "evaluaciones": 1,
+            "aprobadas": 1,
+            "no_aprobadas": {
+              "$subtract": [
+                "$evaluaciones",
+                "$aprobadas"
+              ]
+            },
+            "porcentaje_aprobacion": {
+              "$round": [
+                {
+                  "$multiply": [
+                    {
+                      "$divide": [
+                        "$aprobadas",
+                        "$evaluaciones"
+                      ]
+                    },
+                    100
+                  ]
+                },
+                2
+              ]
+            }
+          }
+        },
+        {
+          "$sort": {
+            "edad_aproximada": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "titulo": "Promedio de oportunidades registradas por materia",
+      "descripcion": "Cuenta oportunidades distintas por aspirante, anio y materia y promedia. No promedia el numero de oportunidad ni presupone intentos no observados.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$group": {
+            "_id": {
+              "aspirante": "$correlativo_aspirante",
+              "anio": "$anio_de_ingreso",
+              "materia": "$materia",
+              "oportunidad": "$numero_de_fecha_de_evaluacion"
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "aspirante": "$_id.aspirante",
+              "anio": "$_id.anio",
+              "materia": "$_id.materia"
+            },
+            "intentos": {
+              "$sum": 1
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": "$_id.materia",
+            "aspirantes_anio": {
+              "$sum": 1
+            },
+            "promedio_intentos": {
+              "$avg": "$intentos"
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "materia": "$_id",
+            "aspirantes_anio": 1,
+            "promedio_intentos": {
+              "$round": [
+                "$promedio_intentos",
+                2
+              ]
+            }
+          }
+        },
+        {
+          "$sort": {
+            "materia": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "titulo": "Historial completo del aspirante",
+      "descripcion": "Ingrese un correlativo exacto. Incluye originales, advertencias y estado de sincronizacion.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$sort": {
+            "anio_de_ingreso": 1,
+            "fecha_asignacion": 1,
+            "numero_de_fecha_de_evaluacion": 1,
+            "materia": 1,
+            "evaluacion_id": 1
+          }
+        },
+        {
+          "$project": {
+            "_id": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "titulo": "Carreras con mas reprobados en primera oportunidad",
+      "descripcion": "IDs distintos con NO APROBADO en oportunidad 1 de alguna materia; no implica fracaso definitivo. Excluye carrera no definida.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$match": {
+            "aprobacion": "NO APROBADO",
+            "numero_de_fecha_de_evaluacion": 1,
+            "carrera_objetivo": {
+              "$nin": [
+                "NINGUNO",
+                "SIN REGISTRO"
+              ]
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "carrera_objetivo": "$carrera_objetivo",
+              "aspirante": "$correlativo_aspirante"
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "carrera_objetivo": "$_id.carrera_objetivo"
+            },
+            "aspirantes_no_aprobados": {
+              "$sum": 1
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "carrera_objetivo": "$_id.carrera_objetivo",
+            "aspirantes_no_aprobados": 1
+          }
+        },
+        {
+          "$sort": {
+            "aspirantes_no_aprobados": -1,
+            "carrera_objetivo": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "titulo": "Top 5 municipios con mas aspirantes",
+      "descripcion": "IDs distintos por departamento y municipio de la institucion; no es residencia.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$group": {
+            "_id": {
+              "departamento_institucion_educativa": "$departamento_institucion_educativa",
+              "municipio_institucion_educativa": "$municipio_institucion_educativa",
+              "aspirante": "$correlativo_aspirante"
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "departamento_institucion_educativa": "$_id.departamento_institucion_educativa",
+              "municipio_institucion_educativa": "$_id.municipio_institucion_educativa"
+            },
+            "aspirantes": {
+              "$sum": 1
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "departamento_institucion_educativa": "$_id.departamento_institucion_educativa",
+            "municipio_institucion_educativa": "$_id.municipio_institucion_educativa",
+            "aspirantes": 1
+          }
+        },
+        {
+          "$sort": {
+            "aspirantes": -1,
+            "departamento_institucion_educativa": 1,
+            "municipio_institucion_educativa": 1
+          }
+        },
+        {
+          "$limit": 5
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "titulo": "Tasa de aprobacion por tipo de institucion",
+      "descripcion": "Tasa sobre evaluaciones, no sobre aspirantes unicos.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$group": {
+            "_id": {
+              "tipo_institucion_educativa": "$tipo_institucion_educativa"
+            },
+            "evaluaciones": {
+              "$sum": 1
+            },
+            "aprobadas": {
+              "$sum": {
+                "$cond": [
+                  {
+                    "$eq": [
+                      "$aprobacion",
+                      "APROBADO"
+                    ]
+                  },
+                  1,
+                  0
+                ]
+              }
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "tipo_institucion_educativa": "$_id.tipo_institucion_educativa",
+            "evaluaciones": 1,
+            "aprobadas": 1,
+            "no_aprobadas": {
+              "$subtract": [
+                "$evaluaciones",
+                "$aprobadas"
+              ]
+            },
+            "porcentaje_aprobacion": {
+              "$round": [
+                {
+                  "$multiply": [
+                    {
+                      "$divide": [
+                        "$aprobadas",
+                        "$evaluaciones"
+                      ]
+                    },
+                    100
+                  ]
+                },
+                2
+              ]
+            }
+          }
+        },
+        {
+          "$sort": {
+            "tipo_institucion_educativa": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "titulo": "Carreras mas demandadas por departamento",
+      "descripcion": "Ranking por IDs distintos en cada departamento de institucion. Excluye carrera no definida; conserva todas las carreras para mostrar empates.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$match": {
+            "carrera_objetivo": {
+              "$nin": [
+                "NINGUNO",
+                "SIN REGISTRO"
+              ]
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "departamento_institucion_educativa": "$departamento_institucion_educativa",
+              "carrera_objetivo": "$carrera_objetivo",
+              "aspirante": "$correlativo_aspirante"
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": {
+              "departamento_institucion_educativa": "$_id.departamento_institucion_educativa",
+              "carrera_objetivo": "$_id.carrera_objetivo"
+            },
+            "aspirantes": {
+              "$sum": 1
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "departamento_institucion_educativa": "$_id.departamento_institucion_educativa",
+            "carrera_objetivo": "$_id.carrera_objetivo",
+            "aspirantes": 1
+          }
+        },
+        {
+          "$sort": {
+            "aspirantes": -1,
+            "departamento_institucion_educativa": 1,
+            "carrera_objetivo": 1
+          }
+        },
+        {
+          "$sort": {
+            "departamento_institucion_educativa": 1,
+            "aspirantes": -1,
+            "carrera_objetivo": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "titulo": "Evolucion de aprobacion por anio",
+      "descripcion": "Cantidad y porcentaje de evaluaciones aprobadas y no aprobadas por anio de ingreso.",
+      "coleccion": "evaluaciones",
+      "pipeline": [
+        {
+          "$group": {
+            "_id": {
+              "anio_de_ingreso": "$anio_de_ingreso"
+            },
+            "evaluaciones": {
+              "$sum": 1
+            },
+            "aprobadas": {
+              "$sum": {
+                "$cond": [
+                  {
+                    "$eq": [
+                      "$aprobacion",
+                      "APROBADO"
+                    ]
+                  },
+                  1,
+                  0
+                ]
+              }
+            }
+          }
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "anio_de_ingreso": "$_id.anio_de_ingreso",
+            "evaluaciones": 1,
+            "aprobadas": 1,
+            "no_aprobadas": {
+              "$subtract": [
+                "$evaluaciones",
+                "$aprobadas"
+              ]
+            },
+            "porcentaje_aprobacion": {
+              "$round": [
+                {
+                  "$multiply": [
+                    {
+                      "$divide": [
+                        "$aprobadas",
+                        "$evaluaciones"
+                      ]
+                    },
+                    100
+                  ]
+                },
+                2
+              ]
+            }
+          }
+        },
+        {
+          "$sort": {
+            "anio_de_ingreso": 1
+          }
+        },
+        {
+          "$set": {
+            "porcentaje_no_aprobacion": {
+              "$round": [
+                {
+                  "$subtract": [
+                    100,
+                    "$porcentaje_aprobacion"
+                  ]
+                },
+                2
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "resumen_pipeline": [
+    {
+      "$group": {
+        "_id": {
+          "carrera": "$carrera_objetivo",
+          "aspirante": "$correlativo_aspirante"
+        },
+        "evaluaciones": {
+          "$sum": 1
+        },
+        "aprobadas": {
+          "$sum": {
+            "$cond": [
+              {
+                "$eq": [
+                  "$aprobacion",
+                  "APROBADO"
+                ]
+              },
+              1,
+              0
+            ]
+          }
+        },
+        "anios": {
+          "$addToSet": "$anio_de_ingreso"
+        }
+      }
+    },
+    {
+      "$group": {
+        "_id": "$_id.carrera",
+        "aspirantes": {
+          "$sum": 1
+        },
+        "evaluaciones": {
+          "$sum": "$evaluaciones"
+        },
+        "aprobadas": {
+          "$sum": "$aprobadas"
+        },
+        "aspirantes_con_aprobacion": {
+          "$sum": {
+            "$cond": [
+              {
+                "$gt": [
+                  "$aprobadas",
+                  0
+                ]
+              },
+              1,
+              0
+            ]
+          }
+        }
+      }
+    },
+    {
+      "$set": {
+        "carrera_objetivo": "$_id",
+        "no_aprobadas": {
+          "$subtract": [
+            "$evaluaciones",
+            "$aprobadas"
+          ]
+        },
+        "porcentaje_aprobacion": {
+          "$round": [
+            {
+              "$multiply": [
+                {
+                  "$divide": [
+                    "$aprobadas",
+                    "$evaluaciones"
+                  ]
+                },
+                100
+              ]
+            },
+            2
+          ]
+        },
+        "fecha_generacion": "$$NOW"
+      }
+    },
+    {
+      "$out": "resumen_carrera"
+    }
+  ]
+}

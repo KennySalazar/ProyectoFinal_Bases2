@@ -21,6 +21,14 @@ public class ErroresApi extends ResponseEntityExceptionHandler {
     public ProblemDetail controlado(org.springframework.web.server.ResponseStatusException ex) {
         return ProblemDetail.forStatusAndDetail(ex.getStatusCode(), ex.getReason());
     }
+    @ExceptionHandler({com.mongodb.MongoTimeoutException.class, com.mongodb.MongoSocketException.class})
+    public ProblemDetail mongoNoDisponible(Exception ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE,"MongoDB no esta disponible. Revise los contenedores y reintente.");
+    }
+    @ExceptionHandler(com.mongodb.MongoExecutionTimeoutException.class)
+    public ProblemDetail consultaLenta(Exception ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.GATEWAY_TIMEOUT,"La consulta excedio 60 segundos. Use filtros mas especificos y reintente.");
+    }
     @ExceptionHandler(Exception.class)
     public ProblemDetail inesperado(Exception ex) {
         log.error("Error inesperado de la API: {}", ex.getClass().getSimpleName());

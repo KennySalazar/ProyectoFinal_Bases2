@@ -56,6 +56,7 @@ public class CargasServicio{
  }
  private void sum(Document d,String k,long n){d.put(k,((Number)d.get(k)).longValue()+n);}
  private void save(Document d){d.put("leidos",((Number)d.get("insertados")).longValue()+((Number)d.get("duplicados")).longValue()+((Number)d.get("rechazados")).longValue());mongo.save(d,"cargas");}
+ public <T>T exclusivo(java.util.function.Supplier<T> accion){entrar();try{return accion.get();}finally{ocupado.set(false);}}
  public Map<String,Object> sincronizar(){entrar();try{return grafo.sincronizar();}finally{ocupado.set(false);}}
  public List<Document> listar(){return mongo.find(new Query().with(Sort.by(Sort.Direction.DESC,"fecha_inicio")).limit(50),Document.class,"cargas").stream().map(this::clean).toList();}
  public Document obtener(String id){Document d=mongo.findOne(Query.query(Criteria.where("carga_id").is(id)),Document.class,"cargas");if(d==null)throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Carga no encontrada.");return clean(d);}
