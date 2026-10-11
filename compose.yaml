@@ -1,0 +1,61 @@
+name: proyecto-final-bases2
+
+services:
+  mongodb:
+    image: mongo:7.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:?Definir usuario MongoDB}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?Definir password MongoDB}
+    command: ["mongod", "--wiredTigerCacheSizeGB", "0.25"]
+    mem_limit: 768m
+    volumes:
+      - mongodb7_data:/data/db
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          mongosh --quiet
+          --username "$$MONGO_INITDB_ROOT_USERNAME"
+          --password "$$MONGO_INITDB_ROOT_PASSWORD"
+          --authenticationDatabase admin
+          --eval 'quit(db.adminCommand({ping: 1}).ok === 1 ? 0 : 1)'
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 40s
+
+  neo4j:
+    image: neo4j:5.26-community
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:7474:7474"
+      - "127.0.0.1:7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:?Definir password Neo4j}
+      DB_NEO4J_PASSWORD: ${NEO4J_PASSWORD:?Definir password Neo4j}
+      NEO4J_server_memory_heap_initial__size: 512m
+      NEO4J_server_memory_heap_max__size: 512m
+      NEO4J_server_memory_pagecache_size: 256m
+    mem_limit: 1536m
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          /var/lib/neo4j/bin/cypher-shell -a bolt://localhost:7687
+          -u neo4j -p "$$DB_NEO4J_PASSWORD"
+          'RETURN 1 AS conexion;'
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 90s
+
+volumes:
+  mongodb7_data:
+  neo4j_data:
+  neo4j_logs:
