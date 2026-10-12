@@ -1,6 +1,8 @@
+import { textoVisible } from "./texto";
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./style.css";
+const Buscador = React.lazy(() => import("./Buscador"));
 const Neo4jVista = React.lazy(() => import("./Neo4jVista"));
 const fmt = (n) =>
   new Intl.NumberFormat("es-GT", { maximumFractionDigits: 2 }).format(n ?? 0);
@@ -10,13 +12,14 @@ const labels = {
   tipo_institucion_educativa: "Tipo de institucion",
   departamento_institucion_educativa: "Departamento",
   municipio_institucion_educativa: "Municipio",
-  anio_de_ingreso: "Anio de ingreso",
+  anio_de_ingreso: "Año de ingreso",
+  anio_nacimiento: "Año de nacimiento",
   edad_aproximada: "Edad aproximada",
   numero_de_fecha_de_evaluacion: "Oportunidad",
   correlativo_aspirante: "Correlativo",
   porcentaje_aprobacion: "Aprobacion (%)",
   porcentaje_no_aprobacion: "No aprobacion (%)",
-  aspirantes_anio_con_edad: "Aspirantes por anio con edad",
+  aspirantes_anio_con_edad: "Aspirantes por año con edad",
   edad_promedio: "Edad promedio",
   promedio_intentos: "Promedio de oportunidades",
   no_aprobadas: "No aprobadas",
@@ -30,7 +33,7 @@ const labels = {
   carga_id: "ID carga",
 };
 const label = (k) =>
-  labels[k] || k.charAt(0).toUpperCase() + k.slice(1).replaceAll("_", " ");
+  labels[k] || textoVisible(k.charAt(0).toUpperCase() + k.slice(1).replaceAll("_", " "));
 async function api(path, options) {
   let r;
   try {
@@ -227,14 +230,14 @@ function Dashboard({ revision, onQueries }) {
             <div className="panel-heading">
               <div>
                 <span className="eyebrow">TENDENCIA HISTORICA</span>
-                <h3>Aprobacion por anio de ingreso</h3>
+                <h3>Aprobacion por año de ingreso</h3>
               </div>
               <span className="tag">Evaluaciones · todos los datos</span>
             </div>
             <Bars
               rows={data[0].filas}
               metric="porcentaje_aprobacion"
-              title="Porcentaje de aprobacion por anio"
+              title="Porcentaje de aprobacion por año"
             />
             <p className="footnote">
               La aprobacion de una evaluacion no equivale a la admision completa
@@ -289,7 +292,7 @@ function Consultas({ revision, onRefresh }) {
   const query = catalog.find((c) => c.id === id),
     history = id === 11 || id === 15;
   const fields = [
-    ["anio", "Anio de ingreso", "anios"],
+    ["anio", "Año de ingreso", "anios"],
     ["carrera", "Carrera", "carreras"],
     ["materia", "Materia", "materias"],
     ["tipo", "Tipo de institucion", "tipos"],
@@ -374,7 +377,7 @@ function Consultas({ revision, onRefresh }) {
               onClick={() => choose(c.id)}
             >
               <span>{String(c.id).padStart(2, "0")}</span>
-              {c.titulo}
+              {textoVisible(c.titulo)}
             </button>
           ))}
         </aside>
@@ -383,8 +386,8 @@ function Consultas({ revision, onRefresh }) {
             <span className="eyebrow">
               CONSULTA {String(id).padStart(2, "0")}
             </span>
-            <h3>{query?.titulo || "Cargando catalogo..."}</h3>
-            <p>{query?.descripcion}</p>
+            <h3>{textoVisible(query?.titulo) || "Cargando catalogo..."}</h3>
+            <p>{textoVisible(query?.descripcion)}</p>
             <div className="filters">
               {fields.map(([key, title, source]) => (
                 <label key={key}>
@@ -793,7 +796,8 @@ function App() {
     [summary, setSummary] = useState({}),
     [loads, setLoads] = useState([]),
     [revision, setRevision] = useState(0),
-    [message, setMessage] = useState("");
+    [message, setMessage] = useState(""),
+    [grafoAspirante, setGrafoAspirante] = useState("");
   async function refresh() {
     try {
       const [s, l] = await Promise.all([
@@ -831,11 +835,15 @@ function App() {
             ["consultas", "Consultas MongoDB", "chart"],
             ["cargas", "Carga de archivos", "upload"],
             ["neo4j", "Explorador Neo4j", "chart"],
+            ["busqueda", "Buscador", "book"],
           ].map(([key, text, icon]) => (
             <button
               key={key}
               className={tab === key ? "active" : ""}
-              onClick={() => setTab(key)}
+              onClick={() => {
+                if (key === "neo4j") setGrafoAspirante("");
+                setTab(key);
+              }}
             >
               <Icon type={icon} />
               {text}
@@ -864,7 +872,9 @@ function App() {
                   ? "Exploracion analitica"
                   : tab === "neo4j"
                     ? "Exploracion de relaciones"
-                    : "Gestion de datos"}
+                    : tab === "busqueda"
+                      ? "Busqueda de registros"
+                      : "Gestion de datos"}
             </h1>
           </div>
           <button
@@ -929,11 +939,27 @@ function App() {
               onRefresh={() => refresh().catch(() => {})}
             />
           )}{" "}
+          {tab === "busqueda" && (
+            <React.Suspense
+              fallback={<p className="empty">Cargando buscador...</p>}
+            >
+              <Buscador
+                api={api}
+                Tabla={ResultTable}
+                revision={revision}
+                abrirGrafo={(id) => {
+                  setGrafoAspirante(id);
+                  setTab("neo4j");
+                }}
+              />
+            </React.Suspense>
+          )}
           {tab === "neo4j" && (
             <React.Suspense
               fallback={<p className="empty">Cargando explorador...</p>}
             >
               <Neo4jVista
+                aspiranteInicial={grafoAspirante}
                 api={api}
                 Tabla={ResultTable}
                 Barras={Bars}

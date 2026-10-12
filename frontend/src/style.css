@@ -937,3 +937,37 @@ footer {
     gap: 10px;
   }
 }
+
+.search-text {
+  display: grid;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #56718a;
+}
+.search-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 175px;
+}
+.detail-title {
+  margin-top: 24px;
+}
+td code {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.sidebar nav {
+  overflow-y: auto;
+}
+.sidebar-note {
+  flex-shrink: 0;
+  margin-top: 25px;
+}
+.sidebar-foot {
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+.search-results-table td:nth-child(1){min-width:170px}.search-results-table td:nth-child(3){min-width:125px}.search-results-table td:nth-child(6){min-width:170px}.search-results-table td:nth-child(7){min-width:190px}

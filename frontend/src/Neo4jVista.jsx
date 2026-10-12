@@ -1,3 +1,4 @@
+import { textoVisible } from "./texto";
 import React, { useEffect, useRef, useState } from "react";
 import cytoscape from "cytoscape";
 const colores = {
@@ -185,13 +186,21 @@ function Red({ datos }) {
     </>
   );
 }
-export default function Neo4jVista({ api, Tabla, Barras, revision }) {
+export default function Neo4jVista({
+  api,
+  Tabla,
+  Barras,
+  revision,
+  aspiranteInicial = "",
+}) {
   const [modo, setModo] = useState("grafo"),
     [catalogo, setCatalogo] = useState([]),
     [opciones, setOpciones] = useState({}),
     [totales, setTotales] = useState({}),
     [id, setId] = useState(1),
-    [filtros, setFiltros] = useState({}),
+    [filtros, setFiltros] = useState(
+      aspiranteInicial ? { aspirante: aspiranteInicial } : {},
+    ),
     [aplicados, setAplicados] = useState({}),
     [limite, setLimite] = useState(10),
     [datos, setDatos] = useState(null),
@@ -221,7 +230,7 @@ export default function Neo4jVista({ api, Tabla, Barras, revision }) {
   }, [revision]);
   const consulta = catalogo.find((c) => c.id === id);
   const campos = [
-    ["anio", "Anio de ingreso", "anios"],
+    ["anio", "Año de ingreso", "anios"],
     ["carrera", "Carrera", "carreras"],
     ["materia", "Materia", "materias"],
     ["tipo", "Tipo de institucion", "tipos"],
@@ -326,12 +335,12 @@ export default function Neo4jVista({ api, Tabla, Barras, revision }) {
               >
                 {catalogo.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.id}. {c.titulo}
+                    {c.id}. {textoVisible(c.titulo)}
                   </option>
                 ))}
               </select>
             </label>
-            <p>{consulta?.descripcion}</p>
+            <p>{textoVisible(consulta?.descripcion)}</p>
             <details>
               <summary>Ver consulta Cypher</summary>
               <pre>{consulta?.cypher}</pre>
