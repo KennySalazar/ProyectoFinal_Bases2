@@ -1,0 +1,76 @@
+{
+  "archivos": [
+    {
+      "archivo": "ArchivosCSV/pruebas_especificas_2015.csv",
+      "filas": 20277,
+      "sha256": "b35a6e65432dc910e1e5712285959603d27fec939944d2b2939f54166821e671"
+    },
+    {
+      "archivo": "ArchivosCSV/pruebas_especificas_2016.csv",
+      "filas": 22137,
+      "sha256": "fd67d7d40fc712cda5b136a4a58e19440bf526ee39eead22c3b643c41cc7344d"
+    },
+    {
+      "archivo": "ArchivosCSV/pruebas_especificas_2017.csv",
+      "filas": 21581,
+      "sha256": "c736f200c4c66ae2f95cf89c26b8cf959db33e6d53e1d87bb81a7d9ce8a294b4"
+    },
+    {
+      "archivo": "ArchivosCSV/pruebas_especificas_2018.csv",
+      "filas": 20871,
+      "sha256": "67dbc435adf585c5ea1a6308b4346c06a976e2a784e0c320176dc27464ece959"
+    },
+    {
+      "archivo": "ArchivosCSV/pruebas_especificas_2019.csv",
+      "filas": 17865,
+      "sha256": "21cce9739af997df0db8b9da43dfae991e830facede3320fd7d8a1a249af26d5"
+    },
+    {
+      "archivo": "ArchivosCSV/pruebas_especificas_2020.csv",
+      "filas": 17931,
+      "sha256": "af6ccfdc041fa779506449ba1a2538881a506a1b3c06ed55ee5a502f0b7c75d3"
+    },
+    {
+      "archivo": "ArchivosCSV/pruebas_especificas_2021.csv",
+      "filas": 30644,
+      "sha256": "cbab5af2ccd24582f68db9de5fc0609194ff8939afa7dfa56909243655f49ab2"
+    },
+    {
+      "archivo": "ArchivosCSV/pruebas_especificas_2022.csv",
+      "filas": 24237,
+      "sha256": "49b111c3733bbc00b0d86a99ea4ffd44e20d72260d4dbba48114c3085bef379f"
+    },
+    {
+      "archivo": "ArchivosCSV/pruebas_especificas_2023.csv",
+      "filas": 19047,
+      "sha256": "e7496fab700cacde76d201b848db1184498e704237dc24055c1747205cd54df3"
+    },
+    {
+      "archivo": "ArchivosCSV/pruebas_especificas_2024.csv",
+      "filas": 13863,
+      "sha256": "c33873a374b7c28cc479359bb6f58199a6419fdddf636fc160ff216af9335dad"
+    }
+  ],
+  "filas_csv": 208453,
+  "evaluaciones_unicas": 207619,
+  "duplicados_exactos": 834,
+  "por_anio": {
+    "2015": 20274,
+    "2016": 21987,
+    "2017": 21399,
+    "2018": 20680,
+    "2019": 17835,
+    "2020": 17665,
+    "2021": 30644,
+    "2022": 24231,
+    "2023": 19047,
+    "2024": 13857
+  },
+  "por_resultado": {
+    "NO APROBADO": 177918,
+    "APROBADO": 29701
+  },
+  "huella_dataset": "973996df6b64b78f7e3f253e1c0fd9c58e413e9eae986341a49546d86fdda29a",
+  "bases_verificadas": true,
+  "segundos_auditoria": 24.71
+}

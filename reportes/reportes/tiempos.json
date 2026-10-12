@@ -1,0 +1,305 @@
+{
+  "nota": "Tiempo HTTP completo de una pagina. Incluye red, API, agregacion, conteo y serializacion; no es tiempo exclusivo del motor.",
+  "consultas": [
+    {
+      "base": "MongoDB",
+      "consulta": 1,
+      "filas_totales": 5,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        876.0,
+        496.87
+      ],
+      "mediana_ms": 686.43,
+      "maximo_ms": 876.0
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 2,
+      "filas_totales": 2,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        206.78,
+        205.44
+      ],
+      "mediana_ms": 206.11,
+      "maximo_ms": 206.78
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 3,
+      "filas_totales": 93,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        235.84,
+        219.85
+      ],
+      "mediana_ms": 227.84,
+      "maximo_ms": 235.84
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 4,
+      "filas_totales": 3,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        314.5,
+        292.9
+      ],
+      "mediana_ms": 303.7,
+      "maximo_ms": 314.5
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 5,
+      "filas_totales": 15,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        563.9,
+        589.48
+      ],
+      "mediana_ms": 576.69,
+      "maximo_ms": 589.48
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 6,
+      "filas_totales": 15,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        5.4,
+        5.6
+      ],
+      "mediana_ms": 5.5,
+      "maximo_ms": 5.6
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 7,
+      "filas_totales": 59,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        268.93,
+        253.32
+      ],
+      "mediana_ms": 261.12,
+      "maximo_ms": 268.93
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 8,
+      "filas_totales": 1251,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        278.69,
+        287.84
+      ],
+      "mediana_ms": 283.26,
+      "maximo_ms": 287.84
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 9,
+      "filas_totales": 99,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        252.41,
+        230.03
+      ],
+      "mediana_ms": 241.22,
+      "maximo_ms": 252.41
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 10,
+      "filas_totales": 5,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        279.63,
+        268.85
+      ],
+      "mediana_ms": 274.24,
+      "maximo_ms": 279.63
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 11,
+      "filas_totales": 4,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        81.2,
+        3.69
+      ],
+      "mediana_ms": 42.45,
+      "maximo_ms": 81.2
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 12,
+      "filas_totales": 12,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        445.29,
+        476.85
+      ],
+      "mediana_ms": 461.07,
+      "maximo_ms": 476.85
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 13,
+      "filas_totales": 46,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        346.61,
+        328.32
+      ],
+      "mediana_ms": 337.47,
+      "maximo_ms": 346.61
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 14,
+      "filas_totales": 3,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        1113.28,
+        1223.51
+      ],
+      "mediana_ms": 1168.39,
+      "maximo_ms": 1223.51
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 15,
+      "filas_totales": 4,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        4.5,
+        4.23
+      ],
+      "mediana_ms": 4.37,
+      "maximo_ms": 4.5
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 16,
+      "filas_totales": 14,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        299.33,
+        289.18
+      ],
+      "mediana_ms": 294.25,
+      "maximo_ms": 299.33
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 17,
+      "filas_totales": 5,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        544.44,
+        624.49
+      ],
+      "mediana_ms": 584.47,
+      "maximo_ms": 624.49
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 18,
+      "filas_totales": 5,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        589.23,
+        472.85
+      ],
+      "mediana_ms": 531.04,
+      "maximo_ms": 589.23
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 19,
+      "filas_totales": 291,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        596.11,
+        502.39
+      ],
+      "mediana_ms": 549.25,
+      "maximo_ms": 596.11
+    },
+    {
+      "base": "MongoDB",
+      "consulta": 20,
+      "filas_totales": 10,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        245.18,
+        244.96
+      ],
+      "mediana_ms": 245.07,
+      "maximo_ms": 245.18
+    },
+    {
+      "base": "Neo4j",
+      "consulta": 1,
+      "filas_totales": 4,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        4334.88,
+        784.78
+      ],
+      "mediana_ms": 2559.83,
+      "maximo_ms": 4334.88
+    },
+    {
+      "base": "Neo4j",
+      "consulta": 2,
+      "filas_totales": 29,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        5217.02,
+        2867.53
+      ],
+      "mediana_ms": 4042.28,
+      "maximo_ms": 5217.02
+    },
+    {
+      "base": "Neo4j",
+      "consulta": 3,
+      "filas_totales": 1821,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        4394.07,
+        2928.44
+      ],
+      "mediana_ms": 3661.26,
+      "maximo_ms": 4394.07
+    },
+    {
+      "base": "Neo4j",
+      "consulta": 4,
+      "filas_totales": 3,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        4432.95,
+        3224.47
+      ],
+      "mediana_ms": 3828.71,
+      "maximo_ms": 4432.95
+    },
+    {
+      "base": "Neo4j",
+      "consulta": 5,
+      "filas_totales": 27,
+      "tamano_pagina": 25,
+      "tiempos_ms": [
+        8466.11,
+        6397.28
+      ],
+      "mediana_ms": 7431.69,
+      "maximo_ms": 8466.11
+    }
+  ]
+}
