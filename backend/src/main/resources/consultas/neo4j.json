@@ -1,0 +1,35 @@
+{
+  "consultas": [
+    {
+      "id": 1,
+      "titulo": "Trayectoria del aspirante",
+      "descripcion": "Recorre aspirante, evaluaciones, materias, carreras y procedencia. Requiere correlativo exacto.",
+      "cypher": "MATCH (a:Aspirante)-[:REALIZO]->(e:Evaluacion)-[:EVALUA]->(m:Materia)\nMATCH (e)-[:ASPIRA_A]->(c:Carrera)\nMATCH (e)-[:PROVIENE_DE_TIPO]->(t:TipoInstitucion)\nMATCH (e)-[:INSTITUCION_EN]->(u:Municipio)-[:PERTENECE_A]->(d:Departamento)\nWHERE ($anio IS NULL OR e.anio_de_ingreso=$anio)\n  AND ($carrera='' OR c.nombre=$carrera)\n  AND ($materia='' OR m.nombre=$materia)\n  AND ($tipo='' OR t.nombre=$tipo)\n  AND ($departamento='' OR d.nombre=$departamento)\n  AND ($aspirante='' OR a.correlativo_aspirante=$aspirante)\nRETURN DISTINCT a.correlativo_aspirante AS correlativo_aspirante,\ne.evaluacion_id AS evaluacion_id, e.anio_de_ingreso AS anio_de_ingreso,\ntoString(e.fecha_asignacion) AS fecha_asignacion,\ne.numero_de_fecha_de_evaluacion AS oportunidad, e.aprobacion AS aprobacion,\nm.nombre AS materia, c.nombre AS carrera,\nt.nombre AS tipo_institucion, u.nombre AS municipio, d.nombre AS departamento\nORDER BY anio_de_ingreso, fecha_asignacion, oportunidad, materia, evaluacion_id"
+    },
+    {
+      "id": 2,
+      "titulo": "Rendimiento por materia y carrera",
+      "descripcion": "Evaluaciones y aspirantes distintos conectados a cada materia y carrera; la tasa mide evaluaciones.",
+      "cypher": "MATCH (a:Aspirante)-[:REALIZO]->(e:Evaluacion)-[:EVALUA]->(m:Materia)\nMATCH (e)-[:ASPIRA_A]->(c:Carrera)\nMATCH (e)-[:PROVIENE_DE_TIPO]->(t:TipoInstitucion)\nMATCH (e)-[:INSTITUCION_EN]->(u:Municipio)-[:PERTENECE_A]->(d:Departamento)\nWHERE ($anio IS NULL OR e.anio_de_ingreso=$anio)\n  AND ($carrera='' OR c.nombre=$carrera)\n  AND ($materia='' OR m.nombre=$materia)\n  AND ($tipo='' OR t.nombre=$tipo)\n  AND ($departamento='' OR d.nombre=$departamento)\n  AND ($aspirante='' OR a.correlativo_aspirante=$aspirante)\nWITH m,c,count(DISTINCT a) AS aspirantes, count(DISTINCT e) AS evaluaciones,\ncount(DISTINCT CASE WHEN e.aprobacion='APROBADO' THEN e END) AS aprobadas\nRETURN m.nombre AS materia,c.nombre AS carrera,aspirantes,evaluaciones,aprobadas,\nevaluaciones-aprobadas AS no_aprobadas,round(100.0*aprobadas/evaluaciones,2) AS porcentaje_aprobacion\nORDER BY evaluaciones DESC, carrera, materia"
+    },
+    {
+      "id": 3,
+      "titulo": "Conexiones entre procedencia y carrera",
+      "descripcion": "Recorre departamento, municipio, evaluacion y carrera. Cuenta IDs distintos por procedencia institucional.",
+      "cypher": "MATCH (a:Aspirante)-[:REALIZO]->(e:Evaluacion)-[:EVALUA]->(m:Materia)\nMATCH (e)-[:ASPIRA_A]->(c:Carrera)\nMATCH (e)-[:PROVIENE_DE_TIPO]->(t:TipoInstitucion)\nMATCH (e)-[:INSTITUCION_EN]->(u:Municipio)-[:PERTENECE_A]->(d:Departamento)\nWHERE ($anio IS NULL OR e.anio_de_ingreso=$anio)\n  AND ($carrera='' OR c.nombre=$carrera)\n  AND ($materia='' OR m.nombre=$materia)\n  AND ($tipo='' OR t.nombre=$tipo)\n  AND ($departamento='' OR d.nombre=$departamento)\n  AND ($aspirante='' OR a.correlativo_aspirante=$aspirante)\nRETURN d.nombre AS departamento,u.nombre AS municipio,c.nombre AS carrera,\ncount(DISTINCT a) AS aspirantes,count(DISTINCT e) AS evaluaciones\nORDER BY departamento, aspirantes DESC, municipio, carrera"
+    },
+    {
+      "id": 4,
+      "titulo": "Materias compartidas por aspirantes",
+      "descripcion": "Pares de materias registradas para el mismo aspirante y anio. No demuestra que haya aprobado ambas. No admite filtro de materia.",
+      "cypher": "MATCH (a:Aspirante)-[:REALIZO]->(e:Evaluacion)-[:EVALUA]->(m:Materia)\nMATCH (e)-[:ASPIRA_A]->(c:Carrera)\nMATCH (e)-[:PROVIENE_DE_TIPO]->(t:TipoInstitucion)\nMATCH (e)-[:INSTITUCION_EN]->(u:Municipio)-[:PERTENECE_A]->(d:Departamento)\nWHERE ($anio IS NULL OR e.anio_de_ingreso=$anio)\n  AND ($carrera='' OR c.nombre=$carrera)\n  AND ($materia='' OR m.nombre=$materia)\n  AND ($tipo='' OR t.nombre=$tipo)\n  AND ($departamento='' OR d.nombre=$departamento)\n  AND ($aspirante='' OR a.correlativo_aspirante=$aspirante)\nWITH a,e.anio_de_ingreso AS anio,collect(DISTINCT m.nombre) AS materias\nUNWIND materias AS materia_a\nUNWIND materias AS materia_b\nWITH a,anio,materia_a,materia_b WHERE materia_a<materia_b\nRETURN materia_a,materia_b,count(DISTINCT a) AS aspirantes,\ncount(*) AS coincidencias_aspirante_anio\nORDER BY aspirantes DESC,materia_a,materia_b"
+    },
+    {
+      "id": 5,
+      "titulo": "Recuperacion en oportunidades posteriores",
+      "descripcion": "IDs con NO APROBADO seguido de APROBADO en una oportunidad mayor, para la misma materia, carrera y anio. Los filtros de procedencia se aplican a la evaluacion inicial.",
+      "cypher": "MATCH (a:Aspirante)-[:REALIZO]->(e:Evaluacion)-[:EVALUA]->(m:Materia)\nMATCH (e)-[:ASPIRA_A]->(c:Carrera)\nMATCH (e)-[:PROVIENE_DE_TIPO]->(t:TipoInstitucion)\nMATCH (e)-[:INSTITUCION_EN]->(u:Municipio)-[:PERTENECE_A]->(d:Departamento)\nWHERE ($anio IS NULL OR e.anio_de_ingreso=$anio)\n  AND ($carrera='' OR c.nombre=$carrera)\n  AND ($materia='' OR m.nombre=$materia)\n  AND ($tipo='' OR t.nombre=$tipo)\n  AND ($departamento='' OR d.nombre=$departamento)\n  AND ($aspirante='' OR a.correlativo_aspirante=$aspirante)\nWITH DISTINCT a,e,m,c WHERE e.aprobacion='NO APROBADO'\nMATCH (a)-[:REALIZO]->(posterior:Evaluacion)-[:EVALUA]->(m)\nMATCH (posterior)-[:ASPIRA_A]->(c)\nWHERE posterior.aprobacion='APROBADO'\n  AND posterior.anio_de_ingreso=e.anio_de_ingreso\n  AND posterior.numero_de_fecha_de_evaluacion>e.numero_de_fecha_de_evaluacion\nRETURN m.nombre AS materia,c.nombre AS carrera,\ncount(DISTINCT a) AS aspirantes_recuperados,\ncount(DISTINCT posterior) AS evaluaciones_posteriores_aprobadas\nORDER BY aspirantes_recuperados DESC,carrera,materia"
+    }
+  ],
+  "grafo": "MATCH (a:Aspirante)-[:REALIZO]->(e:Evaluacion)-[:EVALUA]->(m:Materia)\nMATCH (e)-[:ASPIRA_A]->(c:Carrera)\nMATCH (e)-[:PROVIENE_DE_TIPO]->(t:TipoInstitucion)\nMATCH (e)-[:INSTITUCION_EN]->(u:Municipio)-[:PERTENECE_A]->(d:Departamento)\nWHERE ($anio IS NULL OR e.anio_de_ingreso=$anio)\n  AND ($carrera='' OR c.nombre=$carrera)\n  AND ($materia='' OR m.nombre=$materia)\n  AND ($tipo='' OR t.nombre=$tipo)\n  AND ($departamento='' OR d.nombre=$departamento)\n  AND ($aspirante='' OR a.correlativo_aspirante=$aspirante)\n  AND ($aprobacion='' OR e.aprobacion=$aprobacion)\nWITH DISTINCT a,e,m,c,t,u,d\nORDER BY e.anio_de_ingreso,e.evaluacion_id\nLIMIT $limite\nRETURN a,e,m,c,t,u,d"
+}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./style.css";
+const Neo4jVista = React.lazy(() => import("./Neo4jVista"));
 const fmt = (n) =>
   new Intl.NumberFormat("es-GT", { maximumFractionDigits: 2 }).format(n ?? 0);
 const labels = {
@@ -829,6 +830,7 @@ function App() {
             ["inicio", "Inicio", "grid"],
             ["consultas", "Consultas MongoDB", "chart"],
             ["cargas", "Carga de archivos", "upload"],
+            ["neo4j", "Explorador Neo4j", "chart"],
           ].map(([key, text, icon]) => (
             <button
               key={key}
@@ -860,7 +862,9 @@ function App() {
                 ? "Panorama general"
                 : tab === "consultas"
                   ? "Exploracion analitica"
-                  : "Gestion de datos"}
+                  : tab === "neo4j"
+                    ? "Exploracion de relaciones"
+                    : "Gestion de datos"}
             </h1>
           </div>
           <button
@@ -925,6 +929,18 @@ function App() {
               onRefresh={() => refresh().catch(() => {})}
             />
           )}{" "}
+          {tab === "neo4j" && (
+            <React.Suspense
+              fallback={<p className="empty">Cargando explorador...</p>}
+            >
+              <Neo4jVista
+                api={api}
+                Tabla={ResultTable}
+                Barras={Bars}
+                revision={revision}
+              />
+            </React.Suspense>
+          )}
           {tab === "cargas" && (
             <Cargas loads={loads} summary={summary} onRefresh={refresh} />
           )}

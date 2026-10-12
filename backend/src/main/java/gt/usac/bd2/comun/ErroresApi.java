@@ -29,6 +29,14 @@ public class ErroresApi extends ResponseEntityExceptionHandler {
     public ProblemDetail consultaLenta(Exception ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.GATEWAY_TIMEOUT,"La consulta excedio 60 segundos. Use filtros mas especificos y reintente.");
     }
+    @ExceptionHandler({org.neo4j.driver.exceptions.ServiceUnavailableException.class, org.neo4j.driver.exceptions.SessionExpiredException.class})
+    public ProblemDetail neo4jNoDisponible(Exception ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE,"Neo4j no esta disponible. Revise el contenedor y reintente.");
+    }
+    @ExceptionHandler(org.neo4j.driver.exceptions.TransientException.class)
+    public ProblemDetail neo4jTemporal(Exception ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE,"Neo4j no pudo completar la consulta. Use filtros mas especificos o reintente.");
+    }
     @ExceptionHandler(Exception.class)
     public ProblemDetail inesperado(Exception ex) {
         log.error("Error inesperado de la API: {}", ex.getClass().getSimpleName());

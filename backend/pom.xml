@@ -12,4 +12,8 @@
 <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency>
 </dependencies>
 <build><plugins><plugin><groupId>org.springframework.boot</groupId><artifactId>spring-boot-maven-plugin</artifactId></plugin></plugins></build>
+<profiles><profile><id>neo4j-integration</id>
+<dependencies><dependency><groupId>org.neo4j.test</groupId><artifactId>neo4j-harness</artifactId><version>5.26.0</version><scope>test</scope></dependency></dependencies>
+<build><plugins><plugin><groupId>org.codehaus.mojo</groupId><artifactId>build-helper-maven-plugin</artifactId><version>3.6.1</version><executions><execution><id>neo4j-tests</id><phase>generate-test-sources</phase><goals><goal>add-test-source</goal></goals><configuration><sources><source>src/integration-test/java</source></sources></configuration></execution></executions></plugin></plugins></build>
+</profile></profiles>
 </project>
